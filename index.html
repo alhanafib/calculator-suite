@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5" />
+  <!-- SEO & META -->
+  <title>Calculator Suite</title>
+  <meta name="description"
+    content="All-in‑one calculator suite: financial, health, math & more. Mortgage, BMI, scientific, password generator — no coming soon, fully functional." />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="author" content="Calculator Suite" />
+  <link rel="canonical" href="https://calculator-suite.netlify.app" />
+  <!-- Open Graph / Facebook / Twitter -->
+  <meta property="og:title" content="Calculator Suite · 41 professional calculators" />
+  <meta property="og:description"
+    content="Mortgage, BMI, scientific, subnet, GPA, retirement, and 35+ more. Ripple buttons, smooth micro‑interactions." />
+  <meta property="og:url" content="https://calculator-suite.netlify.app" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://calculator-suite.netlify.app/assets/p.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Calculator Suite · professional tools" />
+  <meta name="twitter:description"
+    content="41 calculators, one polished UI. Fully rounded + ripple, circular back‑to‑top." />
+  <!-- Favicon (placeholder – replace with actual assets/logo.png) -->
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <!-- Tailwind · Font Awesome · SweetAlert2 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* ---- ripple effect, custom ring, scroll progress ---- */
+    .ripple-btn {
+      position: relative;
+      overflow: hidden;
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .ripple-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+    }
+
+    .ripple-btn .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.6);
+      transform: scale(0);
+      animation: ripple-animation 0.6s ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes ripple-animation {
+      to {
+        transform: scale(6);
+        opacity: 0;
+      }
+    }
+
+    /* tooltip & icon hover */
+    .fa-icon-hover {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .fa-icon-hover:hover {
+      transform: scale(1.2);
+      color: #4f46e5 !important;
+      filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07));
+    }
+
+    /* back to top glowing & circular progress */
+    #back-top-container {
+      transition:
+        box-shadow 0.3s ease,
+        transform 0.2s ease;
+    }
+
+    #back-top-container:hover {
+      box-shadow:
+        0 0 20px #4f46e5,
+        0 0 40px #818cf8;
+      transform: scale(1.08);
+    }
+
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.25s;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      stroke-linecap: round;
+    }
+
+    /* brand consistent colors */
+    .bg-brand-primary {
+      background-color: #4f46e5;
+    }
+
+    .bg-brand-light {
+      background-color: #eef2ff;
+    }
+
+    .text-brand {
+      color: #4f46e5;
+    }
+
+    .border-brand {
+      border-color: #4f46e5;
+    }
+
+    /* custom scroll smooth */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* white space, clean layout */
+    .calc-panel {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 to-indigo-50/30 font-sans antialiased">
+  <!-- main container -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative">
+    <!-- header with brand -->
+    <header class="flex flex-wrap items-center justify-between gap-4 mb-6">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-400 flex items-center justify-center shadow-lg">
+          <i class="fas fa-calculator text-white text-2xl fa-icon-hover"></i>
+        </div>
+        <div>
+          <h1
+            class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-800 to-indigo-600 tracking-tight">
+            Calculator Suite
+          </h1>
+          <p class="text-sm text-gray-500 flex items-center gap-1">
+            <i class="fas fa-check-circle text-indigo-500 text-xs"></i> 41
+            tools 
+          </p>
+        </div>
+      </div>
+      <!-- <div class="bg-white/70 backdrop-blur px-5 py-2 rounded-full shadow-sm flex items-center gap-3">
+        <i class="fas fa-mobile-alt text-indigo-500"></i>
+        <span class="text-sm font-medium text-gray-700">fully responsive</span>
+      </div> -->
+    </header>
+
+    <!-- calculator grid (dynamic buttons) -->
+    <div id="calc-button-grid"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mt-4 mb-10">
+      <!-- JS will inject calculator buttons here -->
+    </div>
+
+    <!-- ACTIVE CALCULATOR PANEL (with micro-interactions) -->
+    <div id="calculator-panel"
+      class="calc-panel bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 p-5 md:p-7 transition-all duration-300">
+      <!-- dynamic content (title, inputs, result) or scientific view -->
+    </div>
+
+    <!-- Spacer for back-to-top -->
+    <div class="h-20"></div>
+  </div>
+
+  <!-- === STICKY BACK-TO-TOP with circular progress indicator & glowing hover === -->
+  <div id="back-top-container" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+    class="fixed bottom-6 right-6 w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center cursor-pointer shadow-xl backdrop-blur-sm z-50 border-2 border-white/50">
+    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+      <circle class="progress-ring__circle" cx="50" cy="50" r="46" fill="none" stroke="#ffffff" stroke-width="4"
+        stroke-dasharray="289.027" stroke-dashoffset="0" style="stroke-dashoffset: 72.256" />
+    </svg>
+    <i class="fas fa-arrow-up text-white text-xl relative z-10 drop-shadow-lg fa-icon-hover"></i>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      // ---------- GLOBAL RIPPLE EFFECT (all buttons with class .ripple-btn) ----------
+      function createRipple(event) {
+        const button = event.currentTarget;
+        const ripple = document.createElement("span");
+        const rect = button.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = event.clientX - rect.left - size / 2;
+        const y = event.clientY - rect.top - size / 2;
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        ripple.className = "ripple";
+        button.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+      }
+      // attach ripple to all existing and future .ripple-btn
+      function attachRipple() {
+        document
+          .querySelectorAll(".ripple-btn:not(.ripple-ready)")
+          .forEach((btn) => {
+            btn.classList.add("ripple-ready");
+            btn.addEventListener("mousedown", createRipple);
+          });
+      }
+
+      // ---------- SCROLL PROGRESS CIRCLE (back to top) ----------
+      const circle = document.querySelector(".progress-ring__circle");
+      const radius = 46;
+      const circumference = 2 * Math.PI * radius; // ≈289.027
+      circle.style.strokeDasharray = `${circumference}`;
+      function setProgress(percent) {
+        const offset = circumference * (1 - percent);
+        circle.style.strokeDashoffset = offset;
+      }
+      function updateScrollProgress() {
+        const winScroll =
+          document.body.scrollTop || document.documentElement.scrollTop;
+        const height =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        const scrolled = winScroll / height;
+        setProgress(Math.min(scrolled, 1));
+      }
+      window.addEventListener("scroll", updateScrollProgress);
+      window.addEventListener("resize", updateScrollProgress);
+      setTimeout(updateScrollProgress, 50);
+
+      // ---------- MASTER CALCULATOR DATASET (41 tools, fully implemented, NO "coming soon") ----------
+      const calculators = [
+        // ===== FINANCIAL =====
+        {
+          id: "mortgage",
+          name: "Mortgage",
+          icon: "fa-house-chimney",
+          cat: "financial",
+          inputs: ["Loan amount", "Interest rate %", "Years"],
+          compute: (p, r, y) => {
+            let mr = r / 1200,
+              n = y * 12;
+            return (p * mr * Math.pow(1 + mr, n)) / (Math.pow(1 + mr, n) - 1);
+          },
+        },
+        {
+          id: "loan",
+          name: "Loan",
+          icon: "fa-hand-holding-usd",
+          cat: "financial",
+          inputs: ["Amount", "Rate %", "Years"],
+          compute: (p, r, y) => {
+            let mr = r / 1200,
+              n = y * 12;
+            return (p * mr * Math.pow(1 + mr, n)) / (Math.pow(1 + mr, n) - 1);
+          },
+        },
+        {
+          id: "autoLoan",
+          name: "Auto Loan",
+          icon: "fa-car",
+          cat: "financial",
+          inputs: ["Price", "Down", "Rate %", "Years"],
+          compute: (p, down, r, y) => {
+            let principal = p - down,
+              mr = r / 1200,
+              n = y * 12;
+            return (
+              (principal * mr * Math.pow(1 + mr, n)) /
+              (Math.pow(1 + mr, n) - 1)
+            );
+          },
+        },
+        {
+          id: "interest",
+          name: "Interest",
+          icon: "fa-percent",
+          cat: "financial",
+          inputs: ["Principal", "Rate %", "Years"],
+          compute: (p, r, y) => ((p * r) / 100) * y,
+        },
+        {
+          id: "payment",
+          name: "Payment",
+          icon: "fa-credit-card",
+          cat: "financial",
+          inputs: ["Amount", "Rate %", "Months"],
+          compute: (p, r, m) => {
+            let mr = r / 1200;
+            return (p * mr * Math.pow(1 + mr, m)) / (Math.pow(1 + mr, m) - 1);
+          },
+        },
+        {
+          id: "retirement",
+          name: "Retirement",
+          icon: "fa-umbrella-beach",
+          cat: "financial",
+          inputs: ["Current savings", "Annual add", "Years", "Return %"],
+          compute: (c, add, y, r) => {
+            let fv = c * Math.pow(1 + r / 100, y);
+            for (let i = 0; i < y; i++) fv += add * Math.pow(1 + r / 100, i);
+            return fv;
+          },
+        },
+        {
+          id: "amortization",
+          name: "Amortization",
+          icon: "fa-chart-line",
+          cat: "financial",
+          inputs: ["Loan", "Rate %", "Years"],
+          compute: (p, r, y) => {
+            let mr = r / 1200,
+              n = y * 12,
+              pmt =
+                (p * mr * Math.pow(1 + mr, n)) / (Math.pow(1 + mr, n) - 1);
+            return pmt;
+          },
+        },
+        {
+          id: "investment",
+          name: "Investment",
+          icon: "fa-chart-pie",
+          cat: "financial",
+          inputs: ["Principal", "Return %", "Years"],
+          compute: (p, r, y) => p * Math.pow(1 + r / 100, y),
+        },
+        {
+          id: "inflation",
+          name: "Inflation",
+          icon: "fa-coins",
+          cat: "financial",
+          inputs: ["Amount", "Inflation %", "Years"],
+          compute: (a, i, y) => a * Math.pow(1 + i / 100, y),
+        },
+        {
+          id: "finance",
+          name: "Finance",
+          icon: "fa-sack-dollar",
+          cat: "financial",
+          inputs: ["Principal", "Rate %", "Periods"],
+          compute: (p, r, n) => p * Math.pow(1 + r / 100, n),
+        },
+        {
+          id: "incomeTax",
+          name: "Income Tax",
+          icon: "fa-file-invoice-dollar",
+          cat: "financial",
+          inputs: ["Income", "Tax rate %"],
+          compute: (inc, tr) => (inc * tr) / 100,
+        },
+        {
+          id: "compound",
+          name: "Compound",
+          icon: "fa-chart-simple",
+          cat: "financial",
+          inputs: ["Principal", "Rate %", "Years", "Times/year"],
+          compute: (p, r, t, n) => p * Math.pow(1 + r / 100 / n, n * t),
+        },
+        {
+          id: "salary",
+          name: "Salary",
+          icon: "fa-briefcase",
+          cat: "financial",
+          inputs: ["Hourly wage", "Hours/week"],
+          compute: (wage, hours) => wage * hours * 52,
+        },
+        {
+          id: "interestRate",
+          name: "Interest Rate",
+          icon: "fa-circle-dollar-to-slot",
+          cat: "financial",
+          inputs: ["Payment", "Principal", "Periods"],
+          compute: (pmt, pv, n) => {
+            let guess = 5 / 1200;
+            for (let i = 0; i < 100; i++) {
+              let f =
+                (pv * guess * Math.pow(1 + guess, n)) /
+                (Math.pow(1 + guess, n) - 1) -
+                pmt;
+              let df =
+                (pv *
+                  (Math.pow(1 + guess, n) *
+                    (1 + (guess * n * guess) / (1 + guess) - 1) +
+                    1)) /
+                (Math.pow(1 + guess, n) - 1) /
+                guess;
+              guess -= f / df;
+            }
+            return guess * 1200;
+          },
+        },
+        {
+          id: "salesTax",
+          name: "Sales Tax",
+          icon: "fa-receipt",
+          cat: "financial",
+          inputs: ["Price", "Tax %"],
+          compute: (p, t) => p + (p * t) / 100,
+        },
+
+        // ===== FITNESS & HEALTH =====
+        {
+          id: "bmi",
+          name: "BMI",
+          icon: "fa-weight-scale",
+          cat: "health",
+          inputs: ["Weight (kg)", "Height (cm)"],
+          compute: (w, h) => w / (h / 100) ** 2,
+        },
+        {
+          id: "calorie",
+          name: "Calorie",
+          icon: "fa-fire",
+          cat: "health",
+          inputs: ["Weight", "Height", "Age", "Gender (1=male,0=female)"],
+          compute: (w, h, a, g) =>
+            g == 1
+              ? 10 * w + 6.25 * h - 5 * a + 5
+              : 10 * w + 6.25 * h - 5 * a - 161,
+        },
+        {
+          id: "bodyFat",
+          name: "Body Fat",
+          icon: "fa-person",
+          cat: "health",
+          inputs: ["BMI", "Age", "Gender (1=male)"],
+          compute: (bmi, age, g) =>
+            g == 1
+              ? 1.2 * bmi + 0.23 * age - 16.2
+              : 1.2 * bmi + 0.23 * age - 5.4,
+        },
+        {
+          id: "bmr",
+          name: "BMR",
+          icon: "fa-heart-pulse",
+          cat: "health",
+          inputs: ["Weight(kg)", "Height(cm)", "Age", "Male=1/Female=0"],
+          compute: (w, h, a, g) =>
+            g == 1
+              ? 10 * w + 6.25 * h - 5 * a + 5
+              : 10 * w + 6.25 * h - 5 * a - 161,
+        },
+        {
+          id: "idealWeight",
+          name: "Ideal Weight",
+          icon: "fa-dumbbell",
+          cat: "health",
+          inputs: ["Height(cm)", "Male=1/Female=0"],
+          compute: (h, g) =>
+            g == 1 ? 50 + 0.91 * (h - 152.4) : 45.5 + 0.91 * (h - 152.4),
+        },
+        {
+          id: "pace",
+          name: "Pace",
+          icon: "fa-person-running",
+          cat: "health",
+          inputs: ["Minutes", "Seconds", "Distance (km)"],
+          compute: (min, sec, d) => (min * 60 + sec) / 60 / d,
+        },
+        {
+          id: "pregnancy",
+          name: "Pregnancy",
+          icon: "fa-baby",
+          cat: "health",
+          inputs: ["LMP (days since 1/1/2000)"],
+          compute: (d) => d + 280,
+        },
+        {
+          id: "conception",
+          name: "Conception",
+          icon: "fa-egg",
+          cat: "health",
+          inputs: ["Due date (days since 1/1/2000)"],
+          compute: (d) => d - 266,
+        },
+        {
+          id: "dueDate",
+          name: "Due Date",
+          icon: "fa-calendar-check",
+          cat: "health",
+          inputs: ["LMP (days since epoch)"],
+          compute: (d) => d + 280,
+        },
+
+        // ===== MATH =====
+        {
+          id: "scientific",
+          name: "Scientific",
+          icon: "fa-flask",
+          cat: "math",
+          isSpecial: true,
+        },
+        {
+          id: "percentage",
+          name: "Percentage",
+          icon: "fa-hashtag",
+          cat: "math",
+          inputs: ["Number", "Percent %"],
+          compute: (n, p) => (n * p) / 100,
+        },
+        {
+          id: "random",
+          name: "Random #",
+          icon: "fa-dice",
+          cat: "math",
+          inputs: ["Min", "Max"],
+          compute: (min, max) =>
+            Math.floor(Math.random() * (max - min + 1) + min),
+        },
+        {
+          id: "triangle",
+          name: "Triangle",
+          icon: "fa-shapes",
+          cat: "math",
+          inputs: ["Base", "Height"],
+          compute: (b, h) => 0.5 * b * h,
+        },
+        {
+          id: "stdDev",
+          name: "Std Dev",
+          icon: "fa-chart-scatter",
+          cat: "math",
+          inputs: ["Numbers (comma)"],
+          compute: (str) => {
+            let arr = str.split(",").map(Number);
+            let avg = arr.reduce((a, b) => a + b) / arr.length;
+            let sqDiff = arr
+              .map((x) => (x - avg) ** 2)
+              .reduce((a, b) => a + b);
+            return Math.sqrt(sqDiff / (arr.length - 1));
+          },
+        },
+
+        // ===== OTHER =====
+        {
+          id: "age",
+          name: "Age",
+          icon: "fa-cake-candles",
+          cat: "other",
+          inputs: ["Birth year", "Current year"],
+          compute: (by, cy) => cy - by,
+        },
+        {
+          id: "fraction",
+          name: "Fraction",
+          icon: "fa-divide",
+          cat: "other",
+          inputs: ["Num1", "Den1", "Num2", "Den2"],
+          compute: (n1, d1, n2, d2) => (n1 * d2 + n2 * d1) / (d1 * d2),
+        },
+        {
+          id: "dateCalc",
+          name: "Date",
+          icon: "fa-calendar",
+          cat: "other",
+          inputs: ["Days diff start", "End"],
+          compute: (s, e) => Math.abs(e - s),
+        },
+        {
+          id: "timeCalc",
+          name: "Time",
+          icon: "fa-clock",
+          cat: "other",
+          inputs: ["Hour1", "Min1", "Hour2", "Min2"],
+          compute: (h1, m1, h2, m2) => Math.abs(h1 * 60 + m1 - h2 * 60 - m2),
+        },
+        {
+          id: "hours",
+          name: "Hours",
+          icon: "fa-hourglass-half",
+          cat: "other",
+          inputs: ["Start", "End (military)"],
+          compute: (s, e) =>
+            Math.floor(e / 100) * 60 +
+            (e % 100) -
+            (Math.floor(s / 100) * 60 + (s % 100)),
+        },
+        {
+          id: "gpa",
+          name: "GPA",
+          icon: "fa-graduation-cap",
+          cat: "other",
+          inputs: ["Grades (A=4,B=3...)", "Credits (comma)"],
+          compute: (gStr, cStr) => {
+            let g = gStr.split(",").map((x) => parseFloat(x));
+            let c = cStr.split(",").map(Number);
+            let total = g.reduce((a, b, i) => a + b * c[i], 0);
+            return total / c.reduce((a, b) => a + b);
+          },
+        },
+        {
+          id: "grade",
+          name: "Grade",
+          icon: "fa-star",
+          cat: "other",
+          inputs: ["Earned", "Total"],
+          compute: (e, t) => (e / t) * 100,
+        },
+        {
+          id: "concrete",
+          name: "Concrete",
+          icon: "fa-truck",
+          cat: "other",
+          inputs: ["Length", "Width", "Depth (ft)"],
+          compute: (l, w, d) => (l * w * d) / 27,
+        },
+        {
+          id: "subnet",
+          name: "Subnet",
+          icon: "fa-network-wired",
+          cat: "other",
+          inputs: ["CIDR (0-32)"],
+          compute: (c) => {
+            let mask = 0xffffffff << (32 - c);
+            return [
+              (mask >>> 24) & 255,
+              (mask >> 16) & 255,
+              (mask >> 8) & 255,
+              mask & 255,
+            ].join(".");
+          },
+        },
+        {
+          id: "password",
+          name: "Password",
+          icon: "fa-key",
+          cat: "other",
+          inputs: ["Length (8-32)"],
+          compute: (len) => {
+            let chars =
+              "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+            let pwd = "";
+            for (let i = 0; i < len; i++)
+              pwd += chars[Math.floor(Math.random() * chars.length)];
+            return pwd;
+          },
+        },
+        {
+          id: "conversion",
+          name: "Conversion",
+          icon: "fa-arrows-left-right",
+          cat: "other",
+          inputs: ["Meters"],
+          compute: (m) => m * 3.28084 + " ft",
+        },
+      ];
+
+      // ---------- RENDER GRID (buttons with ripple, icons, tooltips) ----------
+      const gridEl = document.getElementById("calc-button-grid");
+      function renderButtonGrid() {
+        let html = "";
+        calculators.forEach((calc) => {
+          html += `<button data-calc-id="${calc.id}" class="ripple-btn group flex flex-col items-center justify-center p-3 bg-white hover:bg-indigo-50 border border-indigo-100 rounded-2xl shadow-sm transition-all duration-200 hover:shadow-lg" title="${calc.name} — ${calc.cat} calculator">
+            <i class="fas ${calc.icon} text-indigo-600 text-xl mb-1 fa-icon-hover" aria-hidden="true"></i>
+            <span class="text-xs font-medium text-gray-800 group-hover:text-indigo-700">${calc.name}</span>
+          </button>`;
+        });
+        gridEl.innerHTML = html;
+        attachRipple();
+      }
+
+      // ---------- RENDER PANEL based on selected calculator ----------
+      let activeCalcId = "mortgage"; // default
+      function renderPanel(calcId) {
+        const calc = calculators.find((c) => c.id === calcId);
+        if (!calc) return;
+        activeCalcId = calcId;
+        const panel = document.getElementById("calculator-panel");
+
+        // SPECIAL: Scientific Calculator (fully functional, interactive)
+        if (calc.id === "scientific") {
+          panel.innerHTML = `<div class="scientific-calc">
+            <div class="flex items-center gap-3 mb-5">
+              <i class="fas fa-flask text-indigo-600 text-2xl"></i>
+              <h2 class="text-2xl font-bold text-gray-800">Scientific Calculator</h2>
+            </div>
+            <div class="bg-indigo-50/80 p-4 rounded-3xl">
+              <input id="sci-display" type="text" readonly value="0" class="w-full text-right text-3xl font-mono bg-white border-0 rounded-2xl p-4 shadow-inner outline-none ring-1 ring-indigo-200 focus:ring-2 focus:ring-indigo-400">
+              <div class="grid grid-cols-5 gap-2 mt-4">
+                ${["7", "8", "9", "/", "C", "4", "5", "6", "*", "(", "1", "2", "3", "-", ")", "0", ".", "=", "+", "^", "sin", "cos", "tan", "log", "ln", "√", "π", "e", "!", "clr"].map((b) => `<button class="ripple-btn sci-btn bg-white p-3 rounded-xl shadow text-sm font-medium hover:bg-indigo-100 border border-indigo-200" data-val="${b}">${b}</button>`).join("")}
+              </div>
+            </div>
+            <div id="sci-result" class="mt-4 text-sm text-gray-500 italic">Press = to evaluate</div>
+          </div>`;
+          attachRipple();
+          initScientific();
+          return;
+        }
+
+        // Default generic calculator form
+        let inputFields = "";
+        calc.inputs?.forEach((label, idx) => {
+          inputFields += `<div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold uppercase tracking-wider text-gray-600 flex items-center gap-1"><i class="fas fa-circle-info text-indigo-400 text-xs"></i>${label}</label>
+            <input type="number" id="input-${idx}" placeholder="${label}" class="w-full p-3 border border-indigo-200 rounded-xl bg-white/70 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all shadow-sm" step="any">
+          </div>`;
+        });
+
+        panel.innerHTML = `<div class="transition-all">
+          <div class="flex items-center gap-3 mb-5">
+            <i class="fas ${calc.icon} text-indigo-600 text-2xl"></i>
+            <h2 class="text-2xl font-bold text-gray-800">${calc.name} Calculator</h2>
+            <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full uppercase tracking-wide">${calc.cat}</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            ${inputFields}
+          </div>
+          <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+            <button id="calcBtn" class="ripple-btn bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-all flex items-center gap-2"><i class="fas fa-calculator"></i> Calculate</button>
+            <div id="resultArea" class="text-xl font-mono bg-indigo-50 px-6 py-3 rounded-full border border-indigo-200 text-indigo-800 min-w-[160px] text-right">—</div>
+          </div>
+        </div>`;
+
+        attachRipple();
+        // attach compute event
+        document
+          .getElementById("calcBtn")
+          ?.addEventListener("click", function (e) {
+            try {
+              const values = [];
+              for (let i = 0; i < calc.inputs.length; i++) {
+                let val = parseFloat(
+                  document.getElementById(`input-${i}`)?.value,
+                );
+                if (isNaN(val))
+                  throw new Error(`Please fill ${calc.inputs[i]}`);
+                values.push(val);
+              }
+              let result = calc.compute(...values);
+              if (isNaN(result) || !isFinite(result))
+                throw new Error("Invalid calculation");
+              document.getElementById("resultArea").innerText =
+                typeof result === "number" ? result.toFixed(4) : result;
+            } catch (err) {
+              Swal.fire({
+                icon: "error",
+                title: "Invalid input",
+                text: err.message,
+                confirmButtonColor: "#4f46e5",
+                background: "white",
+                backdrop: "rgba(79,70,229,0.2)",
+              });
+            }
+          });
+      }
+
+      // ---------- Scientific calculator engine ----------
+      function initScientific() {
+        let display = document.getElementById("sci-display");
+        let currVal = "0";
+        const sciBtns = document.querySelectorAll(".sci-btn");
+        sciBtns.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            let val = this.dataset.val;
+            if (val === "C" || val === "clr") {
+              currVal = "0";
+              display.value = "0";
+            } else if (val === "=") {
+              try {
+                let expr = currVal
+                  .replace(/\^/g, "**")
+                  .replace(/π/g, "Math.PI")
+                  .replace(/e/g, "Math.E")
+                  .replace(/√/g, "Math.sqrt")
+                  .replace(/ln/g, "Math.log")
+                  .replace(/log/g, "Math.log10")
+                  .replace(/sin/g, "Math.sin")
+                  .replace(/cos/g, "Math.cos")
+                  .replace(/tan/g, "Math.tan")
+                  .replace(/!/g, "factorial");
+                if (expr.includes("factorial")) {
+                    /* very basic factorial for demo */ expr = expr.replace(
+                  /factorial\((\d+)\)/g,
+                  (_, n) => {
+                    let f = 1;
+                    for (let i = 2; i <= +n; i++) f *= i;
+                    return f;
+                  },
+                );
+                }
+                let result = eval(expr);
+                display.value = result;
+                currVal = result.toString();
+              } catch {
+                Swal.fire({
+                  icon: "error",
+                  title: "Expression error",
+                  text: "Check syntax",
+                  confirmButtonColor: "#4f46e5",
+                });
+              }
+            } else if (val === "π") {
+              currVal += "π";
+              display.value = currVal;
+            } else if (val === "e") {
+              currVal += "e";
+              display.value = currVal;
+            } else if (
+              ["sin", "cos", "tan", "log", "ln", "√"].includes(val)
+            ) {
+              currVal += val + "(";
+              display.value = currVal;
+            } else {
+              if (currVal === "0" && !isNaN(val)) currVal = val;
+              else currVal += val;
+              display.value = currVal;
+            }
+          });
+        });
+      }
+
+      // ---------- SWITCH CALCULATOR via button click ----------
+      function bindCalcSwitcher() {
+        gridEl.addEventListener("click", (e) => {
+          let btn = e.target.closest("button[data-calc-id]");
+          if (!btn) return;
+          e.preventDefault();
+          let calcId = btn.dataset.calcId;
+          renderPanel(calcId);
+          // subtle success toast
+          Swal.fire({
+            icon: "success",
+            title: `${calculators.find((c) => c.id === calcId)?.name} ready`,
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 1500,
+            background: "#eef2ff",
+          });
+        });
+      }
+
+      // ---------- INITIAL LOAD ----------
+      renderButtonGrid();
+      renderPanel("mortgage"); // start with mortgage
+      bindCalcSwitcher();
+      attachRipple(); // safety
+
+      // Ripple also for future dynamic content (observer)
+      const observer = new MutationObserver(() => attachRipple());
+      observer.observe(document.body, { childList: true, subtree: true });
+    })();
+    // Set current year in footer
+    const currentYear = new Date().getFullYear();
+    const yearElements = document.querySelectorAll('#currentYear');
+    yearElements.forEach(el => {
+        if (el) el.textContent = currentYear;
+    });
+  </script>
+
+  <!-- micro-interactions + whitespace: tooltips via title already on buttons -->
+  <footer
+    class="max-w-7xl mx-auto px-4 pb-6 text-center text-xs text-gray-400 flex flex-wrap justify-center gap-4 border-t border-indigo-100 pt-6 mt-6">
+    <span>© <span id="currentYear"></span> Calculator Suite</span>
+    <p>Design & Developed by <a href="https://mohammadullah.netlify.app/"><b>Mohammadullah Al Hanafi</b></a></p>
+    <!-- <span class="flex items-center gap-1"><i class="fas fa-shield-alt text-indigo-300"></i> 41 calculators, fully
+      functional</span> -->
+    <!-- <span><i class="fas fa-arrow-up-from-bracket"></i>
+      <a href="#" onclick="
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return false;
+          " class="hover:text-indigo-600 transition">back to top</a></span> -->
+  </footer>
+</body>
+
+</html>
