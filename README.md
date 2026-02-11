@@ -1,6 +1,6 @@
 # 🧮 Calculator Suite — 41 Professional Calculators in One
 
-![Calculator Suite Preview](assets/logo.png)
+![Calculator Suite Preview](assets/p.png)
 
 **Calculator Suite** is a comprehensive, all-in-one web application featuring **41 fully functional calculators** across financial, health, math, and other categories. Every single calculator works immediately — no "coming soon," no placeholders. Built with pure vanilla JavaScript, Tailwind CSS, and micro-interactions for a polished, professional user experience.
 
